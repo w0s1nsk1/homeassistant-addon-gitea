@@ -1,0 +1,5 @@
+#!/usr/bin/with-contenv bash
+
+pushd /app/gitea > /dev/null
+ exec su-exec $USER /app/gitea/gitea web
+popd

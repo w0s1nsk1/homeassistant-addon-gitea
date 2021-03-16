@@ -1,0 +1,26 @@
+{
+  "name": "gitea",
+  "version": "0.1",
+  "slug": "gitea",
+  "description": "Gitea Run on Home Assistant.",
+  "arch": ["armv7", "armhf", "aarch64", "amd64", "i386"],
+  "webui": "http://[HOST]:[PORT:3000]",
+  "startup": "services",
+  "init": false,
+  "stage": "experimental",
+  "ingress": true,
+  "panel_title" : "Gitea",
+  "panel_icon" : "mdi:mdi-git",
+  "panel_admin" : true
+  "options": {},
+  "schema": false,
+  "image": "homeassistant/{arch}-addon-gitea",
+  "ports": {
+    "22/tcp": 3022,
+    "3000/tcp": 3000
+  },
+  "ports_descripton": {
+    "3000/tcp": "Gitea Web Interface",
+    "3022/tcp": "Git SSH Interface"
+  }
+}
