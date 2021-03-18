@@ -8,7 +8,7 @@ ARG BUILD_ARCH
 # Set shell
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-EXPOSE ${SSH_PORT} ${HTTP_PORT}
+#EXPOSE ${SSH_PORT} ${HTTP_PORT}
 
 RUN apk --no-cache add \
     su-exec \
@@ -43,17 +43,19 @@ ENV GODEBUG=netdns=go
 
 COPY data /data
 VOLUME ["/data"]
-#ENTRYPOINT ["/usr/bin/entrypoint"]
-#CMD ["/bin/s6-svscan", "/etc/s6"]
 
 RUN  \
-    ## GET GITEA
+     ARCH="${BUILD_ARCH}" \
+     && if [ "${BUILD_ARCH}" = "aarch64" ]; then ARCH="arm64"; fi \
+     && if [ "${BUILD_ARCH}" = "armv7" ]; then ARCH="arm-6"; fi \
+     && if [ "${BUILD_ARCH}" = "armhf" ]; then ARCH="arm-5"; fi \
+     && if [ "${BUILD_ARCH}" = "amd64" ]; then ARCH="amd64"; fi \
+     && if [ "${BUILD_ARCH}" = "i368" ]; then ARCH="368"; fi \
+     \
     && mkdir -p /app/gitea \
-    && curl -SLo /app/gitea/gitea https://github.com/go-gitea/gitea/releases/download/v${GITEA_VERSION}/gitea-${GITEA_VERSION}-linux-${BUILD_ARCH}  \
-    && echo "https://github.com/go-gitea/gitea/releases/download/v${GITEA_VERSION}/gitea-${GITEA_VERSION}-linux-${BUILD_ARCH}" \
+    && curl -SLo /app/gitea/gitea https://github.com/go-gitea/gitea/releases/download/v${GITEA_VERSION}/gitea-${GITEA_VERSION}-linux-${ARCH}  \
     && chmod 0755 /app/gitea/gitea \
-    && ln -s /app/gitea/gitea /usr/local/bin/gitea
-    ## Cleaning
+    && ln -s /app/gitea/gitea /usr/local/bin/gitea \
     && apk del subversion  \
     && rm -fr \
         /tmp/* \
@@ -62,8 +64,25 @@ RUN  \
 
 COPY rootfs /
 
-#COPY rootfs/etc/s6 /etc/s6
-#COPY rootfs/etc/templates /etc/templates
-#COPY rootfs/etc/nsswitch.conf /etc/
-#COPY rootfs/usr/bin/entrypoint /usr/bin/
-#RUN ls -laR /etc/s6
+RUN for file in /etc/services.d/*/*; do \
+dos2unix $file; \
+chmod a+xwr $file; \
+done
+
+# Build arguments
+ARG BUILD_DATE
+ARG BUILD_REF
+ARG BUILD_VERSION
+# Labels
+LABEL \
+ io.hass.name="Gitea" \
+ io.hass.description="Git with a cup of tea on Home Assistant! Based on https://github.com/go-gitea/gitea ." \
+ io.hass.arch="${BUILD_ARCH}" \
+ io.hass.type="addon" \
+ io.hass.version=${BUILD_VERSION} \
+ maintainer="tb-killa" \
+ org.label-schema.description="Easy personal git server." \
+ org.label-schema.build-date=${BUILD_DATE} \
+ org.label-schema.name="Gitea" \
+ org.label-schema.schema-version="1.0" \
+ org.label-schema.vendor="Community Hass.io Add-ons"

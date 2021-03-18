@@ -5,16 +5,17 @@
   "description": "Gitea Run on Home Assistant.",
   "arch": ["armv7", "armhf", "aarch64", "amd64", "i386"],
   "webui": "http://[HOST]:[PORT:3000]",
-  "startup": "services",
+  "startup": "application",
   "init": false,
   "stage": "experimental",
-  "ingress": true,
   "panel_title" : "Gitea",
   "panel_icon" : "mdi:mdi-git",
-  "panel_admin" : "true",
+  "panel_admin" : true,
+  "map": [
+    "ssl:rw"
+  ],
   "options": {},
   "schema": false,
-  "image": "homeassistant/{arch}-addon-gitea",
   "ports": {
     "22/tcp": 3022,
     "3000/tcp": 3000
