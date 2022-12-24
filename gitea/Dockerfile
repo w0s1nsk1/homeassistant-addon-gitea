@@ -20,6 +20,9 @@ RUN apk --no-cache add \
     linux-pam \
     s6 \
     curl \
+    eudev-dev \
+    iputils \
+    iproute2 \
     openssh \
     tzdata \
     gettext && \
